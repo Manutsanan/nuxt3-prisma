@@ -11,6 +11,7 @@
     "prisma-format": "npx prisma format",
     "prisma-validate": "npx prisma validate",
     "prisma-generate": "npx prisma generate",
+    "prisma-migrate": "npx prisma migrate dev",
     "start": "node .output/server/index.mjs"
   },
   "dependencies": {
