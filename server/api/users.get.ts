@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = 200
     event.node.res.statusMessage = 'succes'
 
-    let response: Response<UserResponse[]> = {
+    const response: Response<UserResponse[]> = {
       status: {
         code: '200',
         message: 'Success.'
@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = 400
     event.node.res.statusMessage = 'error'
 
-    let response: ResponseMessage = {
+    const response: ResponseMessage = {
       code: '400',
       message: 'Something went wrong.'
     }

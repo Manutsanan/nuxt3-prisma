@@ -1,51 +1,54 @@
-import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { Response, ResponseMessage } from "~/models/http.model";
+import type { UserResponse } from '../../models/user.model';
+import PrismaAuthRepository from '../repository/auth.repository';
 
 export default defineEventHandler(async (event) => {
   const config: any = useRuntimeConfig()
   const req = await readBody(event)
 
-  const prisma = new PrismaClient();
-
   try {
-    const getUser: any = await prisma.user.findUnique({
-      where: {
-        username: req.username,
-      }
-    });
-    if (!getUser) {
+    const username: string = req.username || ''
+    const password: string = req.password || ''
+
+    const authRepository = new PrismaAuthRepository();
+    const user: UserResponse = await authRepository.login(username);
+    if (!user) {
       throw new Error("Username or password incorrect.");
     }
 
-    const isCompare = await bcrypt.compare(req?.password, getUser?.password);
+    const isCompare = await bcrypt.compare(password, user?.password);
     if (!isCompare) {
       throw new Error("Username or password incorrect.");
     }
 
     const token = jwt.sign(
-      { data: getUser, expiresIn: 60 * 60 * 24 * 7 },
+      { data: user, expiresIn: 60 * 60 * 24 * 7 },
       config.jwtSecret
     );
 
-    await prisma.$disconnect()
+    event.node.res.statusCode = 200
+    event.node.res.statusMessage = 'succes'
 
-    return {
+    const response: Response<string> = {
       status: {
         code: '200',
-        message: 'Success',
+        message: 'Success.'
       },
       data: token
     }
-  } catch (error: any) {
-    await prisma.$disconnect()
 
-    return {
-      status: {
-        code: '400',
-        message: error.message,
-      },
-      data: null
+    return response
+  } catch (e) {
+    event.node.res.statusCode = 400
+    event.node.res.statusMessage = 'error'
+
+    const response: ResponseMessage = {
+      code: '400',
+      message: 'Something went wrong.'
     }
+
+    return response
   }
 })

@@ -13,7 +13,9 @@ class PrismaUserRepository implements IUserRepository {
       const users = await prisma.user.findMany();
       return users;
     } catch (error) {
-      throw new Error('Error getting users');
+      throw new Error('Something went wrong.');
+    } finally {
+      prisma.$disconnect()
     }
   }
 }
