@@ -9,5 +9,7 @@ export type User = {
 
 export type UserResponse = Pick<User, 'id' | 'username' | 'password' | 'createdAt'>;
 
+export type CreateUser = Pick<User, 'username' | 'password'>;
+
 
 

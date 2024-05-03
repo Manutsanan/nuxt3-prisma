@@ -1,4 +1,4 @@
-import type { UserResponse } from '../../models/user.model';
+import type { CreateUser, UserResponse } from '../../models/user.model';
 import prisma from '../client';
 
 prisma.$connect();
@@ -6,6 +6,7 @@ prisma.$connect();
 interface IUserRepository {
   getUsers(): Promise<UserResponse[]>;
   getUserById(refId: string): Promise<UserResponse>;
+  createUser(payload: CreateUser): Promise<UserResponse>;
 }
 
 class PrismaUserRepository implements IUserRepository {
@@ -24,6 +25,20 @@ class PrismaUserRepository implements IUserRepository {
       const user: any = await prisma.user.findUnique({
         where: {
           id: refId,
+        }
+      });
+      return user;
+    } catch (error) {
+      throw new Error('Something went wrong.');
+    } finally {
+      prisma.$disconnect()
+    }
+  }
+  async createUser(payloads: CreateUser): Promise<UserResponse> {
+    try {
+      const user: any = await prisma.user.create({
+        data: {
+          ...payloads
         }
       });
       return user;
